@@ -1,0 +1,11 @@
+- Compile/ Run instructions:
+g++ -std=c++11 -o test p3.cpp
+./test
+- Test case: (vertex starts from 0)
+6
+2 1 3
+1 4
+2 4 5
+1 1
+1 3
+1 5
