@@ -10,10 +10,26 @@ const long random_seed = 1;
 
 class SquareMatrix{
 private:
-    vector<vector<int>> elements;
+    int **elements;
     int N;
 public:
-    explicit SquareMatrix(int N) : N(N), elements(vector<vector<int>> (N, vector<int>(N))){}
+    explicit SquareMatrix(int N) : N(N) {
+        elements = new int* [N];
+        for(int i = 0; i < N; ++i) elements[i] = new int [N];
+    }
+    SquareMatrix(const SquareMatrix &other): N(other.N) {
+        elements = new int* [N];
+        for(int i = 0; i < N; ++i){
+            elements[i] = new int [N];
+            for(int j = 0; j < N; ++j){
+                elements[i][j] = other.elements[i][j];
+            }
+        }
+    }
+    ~SquareMatrix(){
+        for(int i = 0; i < N; ++i) delete elements[i];
+        delete[] elements;
+    }
     void random_initialize()
     {
         for(int i = 0; i < N; ++i){
@@ -24,7 +40,7 @@ public:
         }
     }
 
-    void display(){
+    void display() const{
         for(int i = 0; i < N; ++i){
             for(int j = 0; j < N; ++j){
                 cout << elements[i][j] << " ";
@@ -33,18 +49,15 @@ public:
         }
     }
 
-    vector<int>& operator[] (int index){
+    int* &operator[] (const int &index){
         return elements[index];
     }
-    const vector<int>& operator[] (int index) const{
-        return elements[index];
-    }
-
-    friend const SquareMatrix recursively_multiply(const SquareMatrix &A, const SquareMatrix &B, int N);
-    friend const SquareMatrix strassen(const SquareMatrix &A, const SquareMatrix &B, int N);
+    
+    friend const SquareMatrix recursively_multiply( SquareMatrix &A,  SquareMatrix &B, int N);
+    friend const SquareMatrix strassen( SquareMatrix &A,  SquareMatrix &B, int N);
 };
 
-const SquareMatrix recursively_multiply(const SquareMatrix &A, const SquareMatrix &B, int N){
+const SquareMatrix recursively_multiply( SquareMatrix &A, SquareMatrix &B, int N){
     SquareMatrix C(N);
     if(N == 1){
         C[0][0] = A[0][0] * B[0][0];
@@ -88,7 +101,7 @@ const SquareMatrix recursively_multiply(const SquareMatrix &A, const SquareMatri
     return C;
 }
 
-const SquareMatrix strassen(const SquareMatrix &A, const SquareMatrix &B, int N){
+const SquareMatrix strassen( SquareMatrix &A, SquareMatrix &B, int N){
     SquareMatrix C(N);
     if (N == 1)
     {
@@ -161,6 +174,8 @@ int main(){
         A.random_initialize();
         B.random_initialize();
         
+        cout << "N = " << N << endl;
+
         chrono::steady_clock::time_point begin, end;
         begin = chrono::steady_clock::now();
         SquareMatrix C = recursively_multiply(A, B, N);
@@ -172,16 +187,5 @@ int main(){
         end = chrono::steady_clock::now();
         cout << "A.B strassen: " << chrono::duration_cast<chrono::milliseconds>(end - begin).count() << endl;
 
-        // if (N == 4)
-        // {
-        //     cout << "A" << endl;
-        //     A.display();
-        //     cout << "B" << endl;
-        //     B.display();
-        //     cout << "A. B" << endl;
-        //     C.display();
-        //     cout << "A. B" << endl;
-        //     D.display();
-        // }
     }
 }
